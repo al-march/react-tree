@@ -1,39 +1,27 @@
 import "./App.css";
 import { Tree } from "./components/tree/Tree";
 
-interface User {
-  id: string | number;
-  name: string;
-  surname: string;
-  friends?: User[];
+interface TreeNode {
+  readonly children?: TreeNode[];
+  readonly text: string;
 }
 
-const tree: User = {
-  id: "1",
-  name: "Fred",
-  surname: "Anderson",
-  friends: [
+const tree: TreeNode = {
+  text: "Topmost",
+  children: [
     {
-      id: "2",
-      name: "Mike",
-      surname: "Smith",
+      text: "Top level 1",
+      children: [
+        {
+          text: "Another item",
+          children: [{ text: "Next level 1" }, { text: "Next level 2" }, { text: "Next level 3" }],
+        },
+      ],
     },
+    { text: "Top level 2" },
     {
-      id: "2",
-      name: "Alex",
-      surname: "Marc",
-      friends: [
-        {
-          id: "2",
-          name: "Mike",
-          surname: "Smith",
-        },
-        {
-          id: "2",
-          name: "Alex",
-          surname: "Marc",
-        },
-      ]
+      text: "Top level 3",
+      children: [{ text: "Test 1" }, { text: "Test 2" }],
     },
   ],
 };
@@ -45,11 +33,10 @@ function App() {
 
       <Tree
         tree={tree}
-        nodeChildren={(user) => user.friends}
+        nodeChildren={(user) => user.children}
         nodeTemplate={(user) => (
           <div className="flex gap-2 items-center">
-            <small className="opacity-60">{user.id}</small>
-            <span>{user.name}</span>
+            <span>{user.text}</span>
           </div>
         )}
       />
