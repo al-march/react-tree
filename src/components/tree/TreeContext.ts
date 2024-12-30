@@ -2,7 +2,6 @@ import { createContext, useContext } from "react";
 
 interface TreeContext<T = any> {
   model: Map<T, boolean>;
-
   openNode: (node: T) => void;
   closeNode: (node: T) => void;
 }

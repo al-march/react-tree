@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { AnimatePresence, motion } from "motion/react";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { useTree } from "./TreeContext";
 
 interface TreeNodeProps<T> {
@@ -13,6 +13,7 @@ interface TreeNodeProps<T> {
 export const TreeNode = <T,>({ node, nodeChildren, nodeTemplate, ...others }: TreeNodeProps<T>) => {
   const ctx = useTree();
 
+  const [isFirstRender, setIsFirstRender] = useState(true);
   const children = useMemo(() => nodeChildren(node), [node, nodeChildren]);
   const isOpen = useMemo(() => !!ctx.model.get(node), [node, ctx.model]);
 
@@ -43,7 +44,7 @@ export const TreeNode = <T,>({ node, nodeChildren, nodeTemplate, ...others }: Tr
       <AnimatePresence>
         {children && isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
+            initial={isFirstRender ? undefined : { opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{
@@ -52,7 +53,12 @@ export const TreeNode = <T,>({ node, nodeChildren, nodeTemplate, ...others }: Tr
             }}
             style={{ overflow: "hidden" }}
           >
-            <div className="pl-4">
+            <div
+              ref={() => {
+                setIsFirstRender(false);
+              }}
+              className="pl-4"
+            >
               {children.map((node, i) => (
                 <TreeNode
                   key={i}

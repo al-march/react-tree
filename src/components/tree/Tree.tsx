@@ -1,4 +1,4 @@
-import { ReactNode, useLayoutEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { TreeContext } from "./TreeContext";
 import { TreeNode } from "./TreeNode";
 
@@ -10,9 +10,10 @@ interface TreeProps<T> {
 }
 
 export const Tree = <T,>({ tree, nodeTemplate, nodeChildren }: TreeProps<T>) => {
+  const contentRef = useRef<HTMLDivElement>(null);
   const [model, setModel] = useState<Map<T, boolean>>(new Map());
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     markAsOpen(tree);
   }, [tree]);
 
@@ -37,7 +38,7 @@ export const Tree = <T,>({ tree, nodeTemplate, nodeChildren }: TreeProps<T>) => 
         closeNode,
       }}
     >
-      <div>
+      <div ref={contentRef}>
         <TreeNode
           node={tree}
           nodeTemplate={nodeTemplate}
