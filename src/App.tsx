@@ -27,21 +27,53 @@ const tree: TreeNode = {
   ],
 };
 
-function App() {
-  const [value, setValue] = useState(initialValue(tree));
+const QUERY_TREE = "tree";
+const QUERY_TREE_SEPARATOR = ",";
 
-  function initialValue(tree: TreeNode, map = new Map<TreeNode, boolean>()) {
-    map.set(tree, tree?.text === "Top level 3" || tree?.text === "Topmost");
-    tree.children?.forEach((node) => initialValue(node, map));
-    return map;
-  }
+function App() {
+  const [value, setValue] = useState(getState(tree));
 
   function onNodeToggle(node: TreeNode, isOpen: boolean) {
     console.log({ node, isOpen });
   }
 
   function onValueChange(value: Map<TreeNode, boolean>) {
-    console.log({ value });
+    saveState(value);
+  }
+
+  function getState(tree: TreeNode) {
+    const map = new Map<TreeNode, boolean>();
+    const url = new URL(window.location.href);
+    const nodes = url.searchParams.get(QUERY_TREE);
+
+    forEveryNode(tree, (node) => {
+      map.set(node, !!nodes?.includes(node.text));
+    });
+    return map;
+  }
+
+  function saveState(state: Map<TreeNode, boolean>) {
+    const url = new URL(window.location.href);
+    const nodes = getSelectedNodes(state).join(QUERY_TREE_SEPARATOR);
+    url.searchParams.set(QUERY_TREE, nodes);
+    window.history.pushState({}, "", url.toString());
+  }
+
+  function getSelectedNodes(map: Map<TreeNode, boolean>) {
+    const keys: string[] = [];
+    for (const [key, isSelect] of map.entries()) {
+      if (isSelect) {
+        keys.push(key.text);
+      }
+    }
+    return keys;
+  }
+
+  function forEveryNode(tree: TreeNode, callback: (node: TreeNode) => void) {
+    callback(tree);
+    tree.children?.forEach((node) => {
+      forEveryNode(node, callback);
+    });
   }
 
   return (
