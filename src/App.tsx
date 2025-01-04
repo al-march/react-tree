@@ -31,7 +31,7 @@ const QUERY_TREE = "tree";
 const QUERY_TREE_SEPARATOR = ",";
 
 function App() {
-  const [value, setValue] = useState(getState(tree));
+  const [value] = useState(getState(tree));
 
   function onNodeToggle(node: TreeNode, isOpen: boolean) {
     console.log({ node, isOpen });

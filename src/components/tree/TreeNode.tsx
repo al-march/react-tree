@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { AnimatePresence, motion } from "motion/react";
-import { ReactNode, useMemo } from "react";
+import { FC, ReactNode } from "react";
 import { useTree } from "./TreeContext";
 
 interface TreeNodeProps<T> {
@@ -10,12 +10,12 @@ interface TreeNodeProps<T> {
   nodeChildren: (node: T) => T[] | undefined | null;
 }
 
-export const TreeNode = <T,>({ node, nodeChildren, nodeTemplate, ...others }: TreeNodeProps<T>) => {
+export const TreeNode = <T,>({ node, nodeChildren, nodeTemplate }: TreeNodeProps<T>) => {
   const ctx = useTree();
-  const children = useMemo(() => nodeChildren(node), [node, nodeChildren]);
-  const isOpen = useMemo(() => !!ctx.model.get(node), [node, ctx.model]);
+  const children = nodeChildren(node);
+  const isOpen = !!ctx.model.get(node);
 
-  function open() {
+  function toggle() {
     if (isOpen) {
       ctx.closeNode(node);
     } else {
@@ -24,17 +24,13 @@ export const TreeNode = <T,>({ node, nodeChildren, nodeTemplate, ...others }: Tr
   }
 
   return (
-    <div>
+    <>
       <header className="flex items-center gap-2">
-        <button
-          className={clsx("p-1 transition-all", {
-            "opacity-0 pointer-events-none": !children,
-            "rotate-90": isOpen,
-          })}
-          onClick={open}
-        >
-          {">"}
-        </button>
+        <NodeToggler
+          isOpen={isOpen}
+          disabled={!children}
+          toggle={toggle}
+        />
 
         <div>{nodeTemplate(node)}</div>
       </header>
@@ -58,13 +54,32 @@ export const TreeNode = <T,>({ node, nodeChildren, nodeTemplate, ...others }: Tr
                   node={node}
                   nodeTemplate={nodeTemplate}
                   nodeChildren={nodeChildren}
-                  {...others}
                 />
               ))}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
+  );
+};
+
+interface NodeTogglerProps {
+  isOpen: boolean;
+  disabled: boolean;
+  toggle: () => void;
+}
+
+export const NodeToggler: FC<NodeTogglerProps> = ({ isOpen, disabled, toggle }) => {
+  return (
+    <button
+      className={clsx("p-1 transition-all", {
+        "opacity-0 pointer-events-none": disabled,
+        "rotate-90": isOpen,
+      })}
+      onClick={toggle}
+    >
+      {">"}
+    </button>
   );
 };
