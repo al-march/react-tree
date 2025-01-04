@@ -55,7 +55,12 @@ function App() {
   function saveState(state: Map<TreeNode, boolean>) {
     const url = new URL(window.location.href);
     const nodes = getSelectedNodes(state).join(QUERY_TREE_SEPARATOR);
-    url.searchParams.set(QUERY_TREE, nodes);
+    if (nodes) {
+      url.searchParams.set(QUERY_TREE, nodes);
+    } else {
+      url.searchParams.delete(QUERY_TREE);
+    }
+
     window.history.pushState({}, "", url.toString());
   }
 
